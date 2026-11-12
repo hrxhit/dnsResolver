@@ -1,6 +1,6 @@
 # 🌐 Custom DNS Resolver from Scratch
 
-> **Computer Networks (2nd Year Engineering Project)**  
+> **Computer Networks (B.Tech CSE Project)**  
 > Built with **Python** using **Raw UDP Sockets** & **Manual Binary Packet Construction** (RFC 1035).  
 > *Zero External DNS Libraries (`dnspython`, `scapy`, etc. are NOT used).*
 
