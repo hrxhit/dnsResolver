@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 DNS Resolver — Web Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #888;
+            font-size: 1.1em;
+        }
+
+        /* Query Form */
+        .query-form {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #aaa;
+            font-size: 0.85em;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1em;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            border-color: #3a7bd5;
+        }
+
+        input::placeholder {
+            color: #666;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3a7bd5, #00d2ff);
+            color: #fff;
+            flex: 2;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(58, 123, 213, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ccc;
+            flex: 1;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-compare {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: #fff;
+            flex: 1;
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #3a7bd5;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Results */
+        .results {
+            display: none;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .result-card h3 {
+            color: #3a7bd5;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 12px 20px;
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #00d2ff;
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-item.success .stat-value { color: #4caf50; }
+        .stat-item.error .stat-value { color: #f44336; }
+        .stat-item.cache .stat-value { color: #ff9800; }
+
+        /* Records Table */
+        .records-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .records-table th {
+            text-align: left;
+            padding: 10px 12px;
+            color: #888;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .records-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 5px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .type-A { background: rgba(76, 175, 80, 0.2); color: #4caf50; }
+        .type-AAAA { background: rgba(33, 150, 243, 0.2); color: #2196f3; }
+        .type-MX { background: rgba(156, 39, 176, 0.2); color: #9c27b0; }
+        .type-NS { background: rgba(255, 152, 0, 0.2); color: #ff9800; }
+        .type-CNAME { background: rgba(0, 188, 212, 0.2); color: #00bcd4; }
+        .type-TXT { background: rgba(255, 255, 255, 0.1); color: #ccc; }
+        .type-SOA { background: rgba(244, 67, 54, 0.2); color: #f44336; }
+
+        /* Trace Timeline */
+        .trace-timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .trace-timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #3a7bd5, #00d2ff);
+        }
+
+        .trace-step {
+            position: relative;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            border-left: 3px solid transparent;
+        }
+
+        .trace-step::before {
+            content: '';
+            position: absolute;
+            left: -25px;
+            top: 18px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #3a7bd5;
+            border: 2px solid #0f0c29;
+        }
+
+        .trace-step.answer::before { background: #4caf50; }
+        .trace-step.referral::before { background: #ff9800; }
+        .trace-step.cache-hit::before { background: #00bcd4; }
+
+        .trace-server {
+            font-weight: 600;
+            color: #3a7bd5;
+        }
+
+        .trace-time {
+            float: right;
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .trace-detail {
+            color: #aaa;
+            font-size: 0.9em;
+            margin-top: 4px;
+        }
+
+        /* Comparison */
+        .comparison-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+
+        .comparison-label {
+            width: 100px;
+            font-weight: 600;
+        }
+
+        .comparison-bar-fill {
+            height: 30px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: width 0.5s ease;
+        }
+
+        .bar-iterative { background: linear-gradient(90deg, #3a7bd5, #00d2ff); }
+        .bar-recursive { background: linear-gradient(90deg, #f093fb, #f5576c); }
+        .bar-system { background: linear-gradient(90deg, #11998e, #38ef7d); }
+
+        /* Cache Section */
+        .cache-section {
+            margin-top: 20px;
+        }
+
+        /* Error */
+        .error-msg {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            color: #f44336;
+            text-align: center;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .form-row { flex-direction: column; }
+            .stats-bar { flex-direction: column; }
+            .btn-row { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🔍 DNS Resolver</h1>
+            <p>Computer Networks Project — By Harshit</p>
+        </div>
+
+        <!-- Query Form -->
+        <div class="query-form">
+            <div class="form-row">
+                <div class="form-group" style="flex: 3;">
+                    <label>Domain Name</label>
+                    <input type="text" id="domain" placeholder="e.g., google.com" autofocus>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>Record Type</label>
+                    <select id="qtype">
+                        <option value="A">A (IPv4)</option>
+                        <option value="AAAA">AAAA (IPv6)</option>
+                        <option value="MX">MX (Mail)</option>
+                        <option value="NS">NS (Nameserver)</option>
+                        <option value="CNAME">CNAME (Alias)</option>
+                        <option value="TXT">TXT (Text)</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>Mode</label>
+                    <select id="mode">
+                        <option value="iterative">Iterative</option>
+                        <option value="recursive">Recursive</option>
+                    </select>
+                </div>
+            </div>
+            <div class="btn-row">
+                <button class="btn-primary" onclick="resolve()">🔍 Resolve</button>
+                <button class="btn-compare" onclick="compare()">⚡ Compare</button>
+                <button class="btn-secondary" onclick="showCache()">📊 Cache</button>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Resolving domain...</p>
+        </div>
+
+        <!-- Results -->
+        <div class="results" id="results"></div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>DNS Resolver v1.0 — Computer Networks 2nd Year Project</p>
+            <p>Built with Python, Raw UDP Sockets & Flask</p>
+        </div>
+    </div>
+
+    <script>
+        // Handle Enter key
+        document.getElementById('domain').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') resolve();
+        });
+
+        async function resolve() {
+            const domain = document.getElementById('domain').value.trim();
+            const qtype = document.getElementById('qtype').value;
+            const mode = document.getElementById('mode').value;
+
+            if (!domain) {
+                alert('Please enter a domain name');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch('/api/resolve', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ domain, type: qtype, mode })
+                });
+
+                const data = await response.json();
+                hideLoading();
+                displayResults(data);
+            } catch (err) {
+                hideLoading();
+                displayError('Network error: ' + err.message);
+            }
+        }
+
+        async function compare() {
+            const domain = document.getElementById('domain').value.trim();
+            const qtype = document.getElementById('qtype').value;
+
+            if (!domain) {
+                alert('Please enter a domain name');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch('/api/compare', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ domain, type: qtype })
+                });
+
+                const data = await response.json();
+                hideLoading();
+                displayComparison(data, domain);
+            } catch (err) {
+                hideLoading();
+                displayError('Network error: ' + err.message);
+            }
+        }
+
+        async function showCache() {
+            try {
+                const response = await fetch('/api/cache');
+                const data = await response.json();
+                displayCache(data);
+            } catch (err) {
+                displayError('Failed to load cache');
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.style.display = 'block';
+
+            let html = '';
+
+            // Stats Bar
+            html += `<div class="stats-bar">
+                <div class="stat-item ${data.success ? 'success' : 'error'}">
+                    <div class="stat-value">${data.rcode || 'ERROR'}</div>
+                    <div class="stat-label">Status</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${data.time_ms}ms</div>
+                    <div class="stat-label">Response Time</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${data.answers ? data.answers.length : 0}</div>
+                    <div class="stat-label">Answers</div>
+                </div>
+                <div class="stat-item ${data.from_cache ? 'cache' : ''}">
+                    <div class="stat-value">${data.from_cache ? '✓' : '✗'}</div>
+                    <div class="stat-label">Cache ${data.from_cache ? 'Hit' : 'Miss'}</div>
+                </div>
+            </div>`;
+
+            // Error
+            if (data.error) {
+                html += `<div class="error-msg">⚠️ ${data.error}</div>`;
+            }
+
+            // Answer Records
+            if (data.answers && data.answers.length > 0) {
+                html += `<div class="result-card">
+                    <h3>📋 Answer Section</h3>
+                    <table class="records-table">
+                        <tr><th>Name</th><th>Type</th><th>TTL</th><th>Data</th></tr>`;
+                
+                data.answers.forEach(record => {
+                    html += `<tr>
+                        <td>${record.name}</td>
+                        <td><span class="type-badge type-${record.type}">${record.type}</span></td>
+                        <td>${record.ttl}s</td>
+                        <td><strong>${record.data}</strong></td>
+                    </tr>`;
+                });
+
+                html += `</table></div>`;
+            }
+
+            // Resolution Trace
+            if (data.trace && data.trace.length > 0 && !data.from_cache) {
+                html += `<div class="result-card">
+                    <h3>🔗 Resolution Trace (${data.mode})</h3>
+                    <div class="trace-timeline">`;
+
+                data.trace.forEach((step, i) => {
+                    let stepClass = '';
+                    if (step.from_cache) stepClass = 'cache-hit';
+                    else if (step.answers) stepClass = 'answer';
+                    else if (step.referrals) stepClass = 'referral';
+
+                    html += `<div class="trace-step ${stepClass}">
+                        <span class="trace-time">${step.time_ms}ms</span>
+                        <div class="trace-server">${step.from_cache ? '💾 Cache' : '🌐 ' + step.server_name}</div>
+                        <div class="trace-detail">`;
+                    
+                    if (!step.from_cache) {
+                        html += `Query: ${step.domain} ${step.type} → ${step.server_ip}`;
+                    }
+
+                    if (step.answers) {
+                        step.answers.forEach(a => {
+                            html += `<br>✅ ${a.type}: <strong>${a.data}</strong>`;
+                        });
+                    }
+                    if (step.referrals) {
+                        html += `<br>↪️ Referral: ${step.referrals.join(', ')}`;
+                    }
+
+                    html += `</div></div>`;
+                });
+
+                html += `</div></div>`;
+            }
+
+            // Authority
+            if (data.authority && data.authority.length > 0) {
+                html += `<div class="result-card">
+                    <h3>🏛️ Authority Section</h3>
+                    <table class="records-table">
+                        <tr><th>Name</th><th>Type</th><th>TTL</th><th>Data</th></tr>`;
+                
+                data.authority.forEach(record => {
+                    html += `<tr>
+                        <td>${record.name}</td>
+                        <td><span class="type-badge type-${record.type}">${record.type}</span></td>
+                        <td>${record.ttl}s</td>
+                        <td>${record.data}</td>
+                    </tr>`;
+                });
+
+                html += `</table></div>`;
+            }
+
+            resultsDiv.innerHTML = html;
+        }
+
+        function displayComparison(data, domain) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.style.display = 'block';
+
+            if (!data.success) {
+                displayError(data.error);
+                return;
+            }
+
+            const comp = data.comparison;
+            const maxTime = Math.max(
+                comp.iterative?.time_ms || 0,
+                comp.recursive?.time_ms || 0,
+                comp.system?.time_ms || 0
+            );
+
+            let html = `<div class="result-card">
+                <h3>⚡ Performance Comparison — ${domain}</h3>
+                <div style="margin-top: 15px;">`;
+
+            ['iterative', 'recursive', 'system'].forEach(method => {
+                const d = comp[method];
+                if (!d) return;
+                const width = maxTime > 0 ? Math.max((d.time_ms / maxTime) * 100, 10) : 50;
+                const cached = d.from_cache ? ' (cached)' : '';
+                const answers = d.answers ? d.answers.join(', ') : '';
+
+                html += `<div class="comparison-bar">
+                    <div class="comparison-label">${method.charAt(0).toUpperCase() + method.slice(1)}</div>
+                    <div class="comparison-bar-fill bar-${method}" style="width: ${width}%">
+                        ${d.time_ms}ms${cached}
+                    </div>
+                </div>
+                <div style="color: #888; font-size: 0.85em; margin-left: 110px; margin-bottom: 12px;">
+                    ${answers}
+                </div>`;
+            });
+
+            html += `</div></div>`;
+            resultsDiv.innerHTML = html;
+        }
+
+        function displayCache(data) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.style.display = 'block';
+
+            const stats = data.stats;
+            let html = `<div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-value">${stats.total_entries}</div>
+                    <div class="stat-label">Entries</div>
+                </div>
+                <div class="stat-item success">
+                    <div class="stat-value">${stats.hits}</div>
+                    <div class="stat-label">Hits</div>
+                </div>
+                <div class="stat-item error">
+                    <div class="stat-value">${stats.misses}</div>
+                    <div class="stat-label">Misses</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${stats.hit_rate}</div>
+                    <div class="stat-label">Hit Rate</div>
+                </div>
+            </div>`;
+
+            if (data.entries.length > 0) {
+                html += `<div class="result-card">
+                    <h3>💾 Cached Entries</h3>
+                    <table class="records-table">
+                        <tr><th>Domain</th><th>Type</th><th>TTL Left</th><th>Hits</th><th>Data</th></tr>`;
+
+                data.entries.forEach(entry => {
+                    html += `<tr>
+                        <td>${entry.domain}</td>
+                        <td><span class="type-badge type-${entry.type}">${entry.type}</span></td>
+                        <td>${entry.ttl_remaining}s</td>
+                        <td>${entry.hits}</td>
+                        <td>${entry.records.join(', ')}</td>
+                    </tr>`;
+                });
+
+                html += `</table></div>`;
+            } else {
+                html += `<div class="result-card"><p style="text-align:center;color:#888;">Cache is empty</p></div>`;
+            }
+
+            html += `<div style="text-align:center;margin-top:10px;">
+                <button class="btn-secondary" onclick="clearCache()">🗑️ Clear Cache</button>
+            </div>`;
+
+            resultsDiv.innerHTML = html;
+        }
+
+        async function clearCache() {
+            await fetch('/api/cache/clear', { method: 'POST' });
+            showCache();
+        }
+
+        function displayError(message) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = `<div class="error-msg">⚠️ ${message}</div>`;
+        }
+    </script>
+</body>
+</html>
+
