@@ -14,7 +14,7 @@ from reportlab.platypus import (
 )
 from reportlab.pdfgen import canvas
 
-OUTPUT_PDF = "/home/harshit/Desktop/DNS resolver/CN_Presentation_Master_Guide_Sarah.pdf"
+OUTPUT_PDF = "/home/harshit/Desktop/DNS resolver/VIVA.pdf"
 
 class NumberedCanvas(canvas.Canvas):
     def __init__(self, *args, **kwargs):
