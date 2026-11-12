@@ -235,6 +235,6 @@ dnsResolver/
 
 ## 👨‍💻 Author
 
-* **Harshit Sharma**  
+* **Sarah**  
 * GitHub: [@hrxhit](https://github.com/hrxhit)  
 * Computer Networks — 3rd Year B.Tech / CSE

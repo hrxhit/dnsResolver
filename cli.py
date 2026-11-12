@@ -13,7 +13,7 @@ Usage:
     python cli.py --interactive             # Interactive mode
     python cli.py --cache-stats             # Show cache statistics
 
-Author: Harshit
+Author: Sarah
 Subject: Computer Networks (2nd Year)
 """
 

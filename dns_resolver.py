@@ -12,7 +12,7 @@ Transport Layer: Uses UDP (port 53) for DNS queries.
     - DNS messages are typically < 512 bytes → fit in single UDP datagram
     - If response is truncated (TC flag), can fall back to TCP
 
-Author: Harshit
+Author: Sarah
 Subject: Computer Networks (2nd Year)
 """
 

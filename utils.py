@@ -3,7 +3,7 @@ Utility Functions
 ==================
 Logging, formatting, and helper functions for the DNS Resolver.
 
-Author: Harshit
+Author: Sarah
 Subject: Computer Networks (2nd Year)
 """
 
@@ -83,7 +83,7 @@ BANNER = f"""
 ║                                                          ║
 ║           🔍  DNS Resolver v1.0                          ║
 ║           Computer Networks Project                      ║
-║           By: Harshit                                    ║
+║           By: Sarah                                      ║
 ║                                                          ║
 ╚══════════════════════════════════════════════════════════╝
 {Colors.RESET}"""

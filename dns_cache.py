@@ -12,7 +12,7 @@ Each cached record has a TTL (Time To Live) value that determines
 how long it stays valid. After TTL expires, the record is evicted
 and a fresh query is made.
 
-Author: Harshit
+Author: Sarah
 Subject: Computer Networks (2nd Year)
 """
 

@@ -3,40 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DNS Resolver Engine</title>
+    <title>DNS Resolver &bull; Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-base: #09090b;
-            --bg-surface: #121215;
-            --bg-subtle: #18181b;
-            --bg-muted: #27272a;
-            --border-subtle: #27272a;
-            --border-strong: #3f3f46;
-            --text-main: #f4f4f5;
-            --text-muted: #a1a1aa;
-            --text-dim: #71717a;
+            /* Palette directly inspired by reference design */
+            --canvas-bg: #dbe4ee;
+            --card-bg: #ffffff;
+            --dark-pill: #16181f;
+            --dark-pill-hover: #262933;
             
-            --accent-blue: #3b82f6;
-            --accent-blue-subtle: rgba(59, 130, 246, 0.12);
-            --emerald: #10b981;
-            --emerald-subtle: rgba(16, 185, 129, 0.12);
-            --amber: #f59e0b;
-            --amber-subtle: rgba(245, 158, 11, 0.12);
-            --rose: #f43f5e;
-            --rose-subtle: rgba(244, 63, 94, 0.12);
-            --purple: #a855f7;
-            --purple-subtle: rgba(168, 85, 247, 0.12);
-            --cyan: #06b6d4;
-            --cyan-subtle: rgba(6, 182, 212, 0.12);
+            --text-heading: #12141a;
+            --text-body: #4a5060;
+            --text-muted: #8890a1;
+            --text-light: #b0b7c6;
             
-            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-            --radius-sm: 6px;
-            --radius-md: 10px;
-            --radius-lg: 14px;
+            --coral-primary: #ff6347;
+            --coral-subtle: #ffede8;
+            --mint-primary: #10b981;
+            --mint-subtle: #e2f8ef;
+            --sky-primary: #0284c7;
+            --sky-card: #e3f2fd;
+            --sky-subtle: #ecf6fd;
+            --purple-primary: #8b5cf6;
+            --purple-subtle: #f3e8ff;
+            --amber-primary: #f59e0b;
+            --amber-subtle: #fef3c7;
+            
+            --border-soft: rgba(0, 0, 0, 0.05);
+            --card-shadow: 0 14px 34px -6px rgba(18, 20, 26, 0.06), 0 2px 8px -1px rgba(18, 20, 26, 0.02);
+            --pill-shadow: 0 10px 24px -4px rgba(22, 24, 31, 0.25);
+            
+            --radius-card: 28px;
+            --radius-pill: 9999px;
+            --radius-element: 18px;
+            
+            --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-code: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         }
 
         * {
@@ -46,568 +51,587 @@
         }
 
         body {
-            font-family: var(--font-sans);
-            background-color: var(--bg-base);
-            color: var(--text-main);
+            font-family: var(--font-main);
+            background-color: var(--canvas-bg);
+            color: var(--text-heading);
             min-height: 100vh;
+            padding: 32px 18px 120px 18px;
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
         }
 
         .mono {
-            font-family: var(--font-mono);
+            font-family: var(--font-code);
         }
 
-        /* Top Navigation Bar */
-        .navbar {
-            border-bottom: 1px solid var(--border-subtle);
-            background: rgba(9, 9, 11, 0.85);
-            backdrop-filter: blur(12px);
-            position: sticky;
-            top: 0;
-            z-index: 50;
-        }
-
-        .nav-container {
-            max-width: 1180px;
+        /* App Layout Shell */
+        .app-shell {
+            max-width: 980px;
             margin: 0 auto;
-            padding: 0 24px;
-            height: 64px;
+        }
+
+        /* Top Header Bar */
+        .top-bar {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            margin-bottom: 24px;
         }
 
-        .brand {
+        .brand-badge-box {
             display: flex;
             align-items: center;
             gap: 12px;
-            text-decoration: none;
-            color: var(--text-main);
         }
 
-        .brand-badge {
-            width: 32px;
-            height: 32px;
-            border-radius: var(--radius-sm);
-            background: var(--bg-subtle);
-            border: 1px solid var(--border-strong);
+        .brand-circle {
+            width: 46px;
+            height: 46px;
+            background: #ffffff;
+            border-radius: var(--radius-pill);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+            font-size: 20px;
         }
 
-        .brand-text h1 {
-            font-size: 15px;
-            font-weight: 600;
-            letter-spacing: -0.01em;
-            color: var(--text-main);
-        }
-
-        .brand-text p {
-            font-size: 12px;
-            color: var(--text-dim);
-            font-family: var(--font-mono);
-        }
-
-        .nav-meta {
+        .user-greeting {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            padding: 6px 16px 6px 8px;
+            border-radius: var(--radius-pill);
+            border: 1px solid rgba(255, 255, 255, 0.6);
         }
 
-        .protocol-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            border-radius: 9999px;
-            font-size: 11px;
-            font-weight: 500;
-            background: var(--bg-subtle);
-            border: 1px solid var(--border-subtle);
-            color: var(--text-muted);
-            font-family: var(--font-mono);
-        }
-
-        .status-dot {
-            width: 6px;
-            height: 6px;
+        .avatar-circle {
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
-            background: var(--emerald);
-            box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+            background: linear-gradient(135deg, #ffd3b6, #ffaaa5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 700;
+            color: #552723;
         }
 
-        /* App Container */
-        .main-container {
-            max-width: 1180px;
-            margin: 0 auto;
-            padding: 28px 24px 80px 24px;
+        .greeting-text {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-heading);
+            letter-spacing: -0.01em;
         }
 
-        /* Hero Query Section */
-        .query-panel {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
-        }
-
-        .query-grid {
-            display: grid;
-            grid-template-columns: 1fr 140px 150px auto;
-            gap: 12px;
-            align-items: end;
-        }
-
-        .input-group label {
-            display: block;
-            font-size: 11px;
+        .top-action-pill {
+            background: var(--dark-pill);
+            color: #ffffff;
+            padding: 8px 18px;
+            border-radius: var(--radius-pill);
+            font-size: 12px;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 14px rgba(22, 24, 31, 0.15);
+        }
+
+        .dot-live {
+            width: 7px;
+            height: 7px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* Section Title Row */
+        .title-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .main-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--text-heading);
+        }
+
+        .session-tag {
+            font-size: 13px;
+            font-weight: 600;
             color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.6);
+            padding: 6px 14px;
+            border-radius: var(--radius-pill);
+        }
+
+        /* Metric Highlights Cards (Like Calories & Weight in ref) */
+        .highlights-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .mini-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-card);
+            padding: 22px 24px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-soft);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 140px;
+        }
+
+        .mini-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .icon-bubble {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+        }
+
+        .bubble-coral { background: var(--coral-subtle); color: var(--coral-primary); }
+        .bubble-mint { background: var(--mint-subtle); color: var(--mint-primary); }
+        .bubble-sky { background: var(--sky-subtle); color: var(--sky-primary); }
+
+        .metric-sub {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            font-family: var(--font-code);
+        }
+
+        .metric-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-heading);
+            margin-top: 8px;
+        }
+
+        .metric-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.4;
             margin-bottom: 8px;
         }
 
-        .input-wrapper {
-            position: relative;
-        }
-
-        .input-icon {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-dim);
-            font-size: 14px;
-            pointer-events: none;
-        }
-
-        input[type="text"] {
-            width: 100%;
-            height: 44px;
-            padding: 0 14px 0 38px;
-            background: var(--bg-base);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-md);
-            color: var(--text-main);
-            font-family: var(--font-mono);
-            font-size: 14px;
-            transition: all 0.15s ease;
-            outline: none;
-        }
-
-        input[type="text"]:focus, select:focus {
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 0 3px var(--accent-blue-subtle);
-        }
-
-        input[type="text"]::placeholder {
-            color: var(--text-dim);
-        }
-
-        select {
-            width: 100%;
-            height: 44px;
-            padding: 0 12px;
-            background: var(--bg-base);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-md);
-            color: var(--text-main);
-            font-size: 13px;
-            font-weight: 500;
-            outline: none;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-
-        .btn-resolve {
-            height: 44px;
-            padding: 0 20px;
-            background: var(--text-main);
-            color: var(--bg-base);
-            font-weight: 600;
-            font-size: 13px;
-            border: none;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            transition: all 0.15s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            white-space: nowrap;
-        }
-
-        .btn-resolve:hover {
-            background: #ffffff;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
-        }
-
-        .btn-resolve:active {
-            transform: translateY(0);
-        }
-
-        /* Secondary actions bar */
-        .actions-bar {
+        .metric-value-box {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 18px;
-            padding-top: 18px;
-            border-top: 1px solid var(--border-subtle);
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .presets {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .preset-label {
-            font-size: 12px;
-            color: var(--text-dim);
-            font-weight: 500;
-        }
-
-        .preset-chip {
-            background: var(--bg-subtle);
-            border: 1px solid var(--border-subtle);
-            color: var(--text-muted);
-            font-family: var(--font-mono);
-            font-size: 11px;
-            padding: 4px 10px;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-
-        .preset-chip:hover {
-            border-color: var(--border-strong);
-            color: var(--text-main);
-            background: var(--bg-muted);
-        }
-
-        .secondary-tools {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-secondary {
-            height: 32px;
-            padding: 0 12px;
-            background: var(--bg-subtle);
-            border: 1px solid var(--border-subtle);
-            color: var(--text-muted);
-            font-size: 12px;
-            font-weight: 500;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            transition: all 0.15s ease;
-            display: inline-flex;
-            align-items: center;
+            align-items: baseline;
             gap: 6px;
         }
 
-        .btn-secondary:hover {
-            background: var(--bg-muted);
-            border-color: var(--border-strong);
-            color: var(--text-main);
+        .metric-big {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text-heading);
         }
 
-        /* KPI / Stat Badges Strip */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px;
+        .metric-unit {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        /* Query Input Card */
+        .query-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-card);
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-soft);
             margin-bottom: 24px;
         }
 
-        .stat-card {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-md);
-            padding: 16px;
-        }
-
-        .stat-card-label {
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-dim);
-            margin-bottom: 6px;
-        }
-
-        .stat-card-value {
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--text-main);
-            font-family: var(--font-mono);
+        .input-pill-group {
             display: flex;
             align-items: center;
-            gap: 8px;
-        }
-
-        /* Badges */
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-            font-family: var(--font-mono);
-            text-transform: uppercase;
-        }
-
-        .badge-success { background: var(--emerald-subtle); color: var(--emerald); border: 1px solid rgba(16, 185, 129, 0.2); }
-        .badge-error { background: var(--rose-subtle); color: var(--rose); border: 1px solid rgba(244, 63, 94, 0.2); }
-        .badge-warn { background: var(--amber-subtle); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.2); }
-        .badge-neutral { background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border-subtle); }
-        .badge-cyan { background: var(--cyan-subtle); color: var(--cyan); border: 1px solid rgba(6, 182, 212, 0.2); }
-
-        /* Record Types */
-        .type-tag {
-            display: inline-block;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-            font-family: var(--font-mono);
-        }
-        .type-A { background: var(--emerald-subtle); color: var(--emerald); }
-        .type-AAAA { background: var(--cyan-subtle); color: var(--cyan); }
-        .type-MX { background: var(--purple-subtle); color: var(--purple); }
-        .type-NS { background: var(--amber-subtle); color: var(--amber); }
-        .type-CNAME { background: var(--accent-blue-subtle); color: var(--accent-blue); }
-        .type-TXT { background: var(--bg-muted); color: var(--text-muted); }
-
-        /* Content Cards */
-        .card {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
-
-        .card-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border-subtle);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(255, 255, 255, 0.01);
-        }
-
-        .card-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            letter-spacing: -0.01em;
-        }
-
-        .card-body {
-            padding: 0;
-        }
-
-        /* Clean Data Table */
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-            text-align: left;
-        }
-
-        .data-table th {
-            padding: 10px 18px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-dim);
-            background: var(--bg-surface);
-            border-bottom: 1px solid var(--border-subtle);
-        }
-
-        .data-table td {
-            padding: 14px 18px;
-            border-bottom: 1px solid var(--border-subtle);
-            color: var(--text-main);
-            vertical-align: middle;
-        }
-
-        .data-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .data-table tr:hover td {
-            background: rgba(255, 255, 255, 0.015);
-        }
-
-        .data-value {
-            font-family: var(--font-mono);
-            font-weight: 500;
-            color: #fff;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* Stepped Resolution Timeline */
-        .timeline {
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
             gap: 12px;
-        }
-
-        .timeline-step {
-            position: relative;
-            padding: 16px;
-            border-radius: var(--radius-md);
-            background: var(--bg-base);
-            border: 1px solid var(--border-subtle);
-            display: grid;
-            grid-template-columns: 80px 1fr auto;
-            gap: 16px;
-            align-items: start;
-        }
-
-        .step-num {
-            font-family: var(--font-mono);
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            padding-top: 2px;
-        }
-
-        .step-main {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .step-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .step-ip {
-            font-family: var(--font-mono);
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .step-desc {
-            font-size: 12px;
-            color: var(--text-dim);
-            margin-top: 4px;
-        }
-
-        .step-badge-box {
-            margin-top: 6px;
-            display: flex;
             flex-wrap: wrap;
-            gap: 6px;
         }
 
-        .step-latency {
-            font-family: var(--font-mono);
-            font-size: 12px;
+        .domain-input-wrapper {
+            flex: 1;
+            min-width: 260px;
+            position: relative;
+        }
+
+        .domain-input {
+            width: 100%;
+            height: 52px;
+            background: #f4f7fb;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            border-radius: var(--radius-pill);
+            padding: 0 22px 0 46px;
+            font-size: 15px;
+            font-family: var(--font-code);
             font-weight: 500;
+            color: var(--text-heading);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .domain-input:focus {
+            background: #ffffff;
+            border-color: var(--text-heading);
+            box-shadow: 0 0 0 4px rgba(22, 24, 31, 0.06);
+        }
+
+        .domain-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
             color: var(--text-muted);
-            background: var(--bg-subtle);
-            border: 1px solid var(--border-subtle);
-            padding: 3px 8px;
-            border-radius: var(--radius-sm);
+            font-size: 16px;
+            pointer-events: none;
+        }
+
+        .pill-select {
+            height: 52px;
+            background: #f4f7fb;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            border-radius: var(--radius-pill);
+            padding: 0 20px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-heading);
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .pill-select:focus {
+            border-color: var(--text-heading);
+            background: #fff;
+        }
+
+        .btn-resolve-main {
+            height: 52px;
+            padding: 0 28px;
+            background: var(--dark-pill);
+            color: #ffffff;
+            border: none;
+            border-radius: var(--radius-pill);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+            box-shadow: 0 8px 20px rgba(22, 24, 31, 0.18);
             white-space: nowrap;
         }
 
-        /* Benchmarking Bars */
-        .benchmark-box {
-            padding: 20px;
+        .btn-resolve-main:hover {
+            background: var(--dark-pill-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-resolve-main:active {
+            transform: translateY(0);
+        }
+
+        /* Preset Chips Row */
+        .preset-row {
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px dashed rgba(0, 0, 0, 0.06);
+            flex-wrap: wrap;
+        }
+
+        .preset-chip-pill {
+            background: #f4f7fb;
+            border: 1px solid transparent;
+            color: var(--text-body);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: var(--radius-pill);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: var(--font-code);
+        }
+
+        .preset-chip-pill:hover {
+            background: #e6edf5;
+            color: var(--text-heading);
+        }
+
+        /* Main Results Container */
+        .card-main {
+            background: var(--card-bg);
+            border-radius: var(--radius-card);
+            padding: 28px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-soft);
+            margin-bottom: 24px;
+        }
+
+        .card-top-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .card-heading {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-heading);
+            letter-spacing: -0.02em;
+        }
+
+        /* Status Badge Pills */
+        .tag-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: var(--radius-pill);
+            font-size: 12px;
+            font-weight: 700;
+            font-family: var(--font-code);
+        }
+
+        .tag-success { background: var(--mint-subtle); color: var(--mint-primary); }
+        .tag-coral { background: var(--coral-subtle); color: var(--coral-primary); }
+        .tag-sky { background: var(--sky-subtle); color: var(--sky-primary); }
+        .tag-purple { background: var(--purple-subtle); color: var(--purple-primary); }
+        .tag-neutral { background: #f0f4f9; color: var(--text-muted); }
+
+        /* Answer Table */
+        .records-clean-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+
+        .records-clean-table th {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            padding: 0 16px 8px 16px;
+            text-align: left;
+        }
+
+        .record-row-pill {
+            background: #f8fafc;
+            border-radius: var(--radius-element);
+            transition: all 0.15s ease;
+        }
+
+        .record-row-pill:hover {
+            background: #f1f5f9;
+        }
+
+        .record-row-pill td {
+            padding: 16px;
+            font-size: 14px;
+        }
+
+        .record-row-pill td:first-child {
+            border-top-left-radius: var(--radius-element);
+            border-bottom-left-radius: var(--radius-element);
+        }
+
+        .record-row-pill td:last-child {
+            border-top-right-radius: var(--radius-element);
+            border-bottom-right-radius: var(--radius-element);
+        }
+
+        .rdata-highlight {
+            font-family: var(--font-code);
+            font-weight: 700;
+            color: var(--text-heading);
+            background: #ffffff;
+            padding: 6px 14px;
+            border-radius: var(--radius-pill);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+            display: inline-block;
+        }
+
+        /* Stepped Timeline Activity Card */
+        .activity-card {
+            background: var(--sky-card);
+            border-radius: var(--radius-card);
+            padding: 28px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 24px;
+        }
+
+        .step-pill-item {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 18px 22px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             gap: 16px;
         }
 
-        .bench-row {
-            display: grid;
-            grid-template-columns: 140px 1fr 90px;
-            gap: 14px;
-            align-items: center;
-        }
-
-        .bench-label {
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-muted);
-        }
-
-        .bench-track {
-            height: 28px;
-            background: var(--bg-base);
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border-subtle);
-            overflow: hidden;
-            position: relative;
-        }
-
-        .bench-fill {
-            height: 100%;
-            border-radius: 4px;
-            transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        .step-left-info {
             display: flex;
             align-items: center;
-            padding-left: 10px;
-            font-family: var(--font-mono);
-            font-size: 11px;
-            font-weight: 600;
+            gap: 16px;
         }
 
-        .bench-iterative { background: #2563eb; color: #fff; }
-        .bench-recursive { background: #7c3aed; color: #fff; }
-        .bench-system { background: #059669; color: #fff; }
-
-        .bench-time {
-            font-family: var(--font-mono);
+        .step-index-badge {
+            width: 32px;
+            height: 32px;
+            background: #f1f5f9;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 13px;
-            font-weight: 600;
-            text-align: right;
-            color: var(--text-main);
+            font-weight: 800;
+            color: var(--text-heading);
         }
 
-        /* Loading Skeleton */
-        .loading-state {
+        .step-names {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text-heading);
+        }
+
+        .step-ip-meta {
+            font-size: 12px;
+            font-family: var(--font-code);
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .step-time-pill {
+            background: var(--coral-subtle);
+            color: var(--coral-primary);
+            font-size: 12px;
+            font-weight: 700;
+            font-family: var(--font-code);
+            padding: 6px 12px;
+            border-radius: var(--radius-pill);
+        }
+
+        /* Benchmark Horizontal Bars (Like activities graph in ref) */
+        .bench-bar-container {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-top: 10px;
+        }
+
+        .bench-item-pill {
+            display: grid;
+            grid-template-columns: 140px 1fr 80px;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .bench-track-pill {
+            height: 36px;
+            background: #f1f5f9;
+            border-radius: var(--radius-pill);
+            overflow: hidden;
+            padding: 4px;
+        }
+
+        .bench-fill-pill {
+            height: 100%;
+            border-radius: var(--radius-pill);
+            display: flex;
+            align-items: center;
+            padding-left: 14px;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: var(--font-code);
+            transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .fill-coral { background: var(--coral-primary); }
+        .fill-dark { background: var(--dark-pill); }
+        .fill-mint { background: var(--mint-primary); }
+
+        /* Floating Bottom Dock (Directly from reference) */
+        .floating-dock {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark-pill);
+            padding: 10px 18px;
+            border-radius: var(--radius-pill);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: var(--pill-shadow);
+            z-index: 100;
+        }
+
+        .dock-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
+            font-weight: 700;
+            padding: 8px 16px;
+            border-radius: var(--radius-pill);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dock-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .dock-btn.active {
+            background: #ffffff;
+            color: var(--dark-pill);
+        }
+
+        /* Loading */
+        .loading-box {
             display: none;
-            padding: 48px 20px;
             text-align: center;
+            padding: 40px;
         }
 
-        .loader {
-            width: 24px;
-            height: 24px;
-            border: 2px solid var(--border-strong);
-            border-top-color: var(--text-main);
+        .spinner-pill {
+            width: 32px;
+            height: 32px;
+            border: 3px solid rgba(22, 24, 31, 0.1);
+            border-top-color: var(--coral-primary);
             border-radius: 50%;
             animation: spin 0.6s linear infinite;
             margin: 0 auto 12px;
@@ -617,158 +641,145 @@
             to { transform: rotate(360deg); }
         }
 
-        .empty-placeholder {
-            padding: 60px 20px;
-            text-align: center;
-            color: var(--text-dim);
-            font-size: 13px;
-        }
-
-        /* Footer */
-        .footer {
-            margin-top: 48px;
-            padding-top: 24px;
-            border-top: 1px solid var(--border-subtle);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 12px;
-            color: var(--text-dim);
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .footer a {
-            color: var(--text-muted);
-            text-decoration: none;
-        }
-
-        .footer a:hover {
-            color: var(--text-main);
-        }
-
-        /* Mobile Responsive */
-        @media (max-width: 860px) {
-            .query-grid {
-                grid-template-columns: 1fr;
-            }
-            .timeline-step {
-                grid-template-columns: 1fr;
-                gap: 8px;
-            }
-            .bench-row {
-                grid-template-columns: 100px 1fr 70px;
-            }
+        @media (max-width: 768px) {
+            .highlights-grid { grid-template-columns: 1fr; }
+            .input-pill-group { flex-direction: column; align-items: stretch; }
+            .pill-select, .btn-resolve-main { width: 100%; justify-content: center; }
+            .bench-item-pill { grid-template-columns: 1fr; gap: 6px; }
+            .floating-dock { width: 90%; justify-content: space-around; padding: 8px; }
+            .dock-btn { padding: 8px 10px; font-size: 12px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Navigation -->
-    <header class="navbar">
-        <div class="nav-container">
-            <a href="/" class="brand">
-                <div class="brand-badge">⚡</div>
-                <div class="brand-text">
-                    <h1>DNS Resolver</h1>
-                    <p>RFC 1035 UDP Engine</p>
+    <div class="app-shell">
+
+        <!-- Top Bar with Avatar -->
+        <header class="top-bar">
+            <div class="brand-badge-box">
+                <div class="brand-circle">🌐</div>
+                <div class="user-greeting">
+                    <div class="avatar-circle">S</div>
+                    <span class="greeting-text">Hello, Sarah 👋</span>
                 </div>
-            </a>
-            <div class="nav-meta">
-                <span class="protocol-pill">
-                    <span class="status-dot"></span>
-                    UDP : 53
-                </span>
-                <span class="protocol-pill">Python 3.14</span>
             </div>
+
+            <div class="top-action-pill">
+                <span class="dot-live"></span>
+                <span>UDP Port 53</span>
+            </div>
+        </header>
+
+        <!-- Main Title -->
+        <div class="title-row">
+            <h1 class="main-title">DNS Dashboard</h1>
+            <span class="session-tag mono">RFC 1035 &bull; Python Engine</span>
         </div>
-    </header>
 
-    <!-- Main Viewport -->
-    <main class="main-container">
-
-        <!-- Query Form Panel -->
-        <section class="query-panel">
-            <div class="query-grid">
-                <div class="input-group">
-                    <label for="domain">Target Domain Name</label>
-                    <div class="input-wrapper">
-                        <span class="input-icon">🌐</span>
-                        <input type="text" id="domain" placeholder="e.g. google.com, github.com" autocomplete="off" spellcheck="false" autofocus>
-                    </div>
+        <!-- 2 Metric Cards (Like Calories & Weight in ref) -->
+        <section class="highlights-grid">
+            <div class="mini-card">
+                <div class="mini-card-header">
+                    <div class="icon-bubble bubble-coral">🔥</div>
+                    <span class="metric-sub" id="hero-status">NOERROR</span>
                 </div>
-
-                <div class="input-group">
-                    <label for="qtype">Record Type</label>
-                    <select id="qtype">
-                        <option value="A" selected>A (IPv4)</option>
-                        <option value="AAAA">AAAA (IPv6)</option>
-                        <option value="MX">MX (Mail)</option>
-                        <option value="NS">NS (Nameserver)</option>
-                        <option value="CNAME">CNAME (Alias)</option>
-                        <option value="TXT">TXT (Text)</option>
-                    </select>
+                <div>
+                    <div class="metric-label">Latency Speed</div>
+                    <div class="metric-desc">Socket round-trip resolution time</div>
                 </div>
-
-                <div class="input-group">
-                    <label for="mode">Resolution Mode</label>
-                    <select id="mode">
-                        <option value="iterative" selected>Iterative (Root➔Auth)</option>
-                        <option value="recursive">Recursive (8.8.8.8)</option>
-                    </select>
+                <div class="metric-value-box">
+                    <span class="metric-big" id="hero-latency">0.0</span>
+                    <span class="metric-unit">ms</span>
                 </div>
-
-                <button class="btn-resolve" onclick="executeResolve()">
-                    <span>Query DNS</span>
-                    <span style="font-family: var(--font-mono); font-size: 11px; opacity: 0.7;">↵</span>
-                </button>
             </div>
 
-            <!-- Presets & Quick Actions -->
-            <div class="actions-bar">
-                <div class="presets">
-                    <span class="preset-label">Quick Test:</span>
-                    <button class="preset-chip" onclick="setPreset('google.com', 'A', 'iterative')">google.com</button>
-                    <button class="preset-chip" onclick="setPreset('github.com', 'A', 'iterative')">github.com</button>
-                    <button class="preset-chip" onclick="setPreset('cloudflare.com', 'NS', 'iterative')">cloudflare.com (NS)</button>
-                    <button class="preset-chip" onclick="setPreset('gmail.com', 'MX', 'recursive')">gmail.com (MX)</button>
+            <div class="mini-card">
+                <div class="mini-card-header">
+                    <div class="icon-bubble bubble-mint">💾</div>
+                    <span class="metric-sub" id="hero-cache-status">READY</span>
                 </div>
-                <div class="secondary-tools">
-                    <button class="btn-secondary" onclick="executeCompare()">
-                        <span>⚡ Benchmark vs System</span>
-                    </button>
-                    <button class="btn-secondary" onclick="fetchCacheStats()">
-                        <span>💾 Inspect Cache</span>
-                    </button>
+                <div>
+                    <div class="metric-label">Memory Cache</div>
+                    <div class="metric-desc">In-memory TTL record storage</div>
+                </div>
+                <div class="metric-value-box">
+                    <span class="metric-big" id="hero-hops">0</span>
+                    <span class="metric-unit">Hops / Referrals</span>
                 </div>
             </div>
         </section>
 
-        <!-- Loading State -->
-        <div id="loading" class="loading-state">
-            <div class="loader"></div>
-            <p style="font-size: 13px; color: var(--text-dim); font-family: var(--font-mono);">Sending UDP Datagram over port 53...</p>
+        <!-- Query Pill Card -->
+        <section class="query-card">
+            <div class="input-pill-group">
+                <div class="domain-input-wrapper">
+                    <span class="domain-icon">🔍</span>
+                    <input type="text" id="domain" class="domain-input" placeholder="Enter domain (e.g. google.com)" spellcheck="false" autocomplete="off" autofocus>
+                </div>
+
+                <select id="qtype" class="pill-select">
+                    <option value="A" selected>A &bull; IPv4</option>
+                    <option value="AAAA">AAAA &bull; IPv6</option>
+                    <option value="MX">MX &bull; Mail</option>
+                    <option value="NS">NS &bull; Nameserver</option>
+                    <option value="CNAME">CNAME &bull; Alias</option>
+                    <option value="TXT">TXT &bull; Text</option>
+                </select>
+
+                <select id="mode" class="pill-select">
+                    <option value="iterative" selected>Iterative (Root➔TLD➔Auth)</option>
+                    <option value="recursive">Recursive (8.8.8.8)</option>
+                </select>
+
+                <button class="btn-resolve-main" onclick="executeResolve()">
+                    <span>Resolve</span>
+                    <span>➔</span>
+                </button>
+            </div>
+
+            <!-- Quick Presets -->
+            <div class="preset-row">
+                <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-right: 4px;">Quick Test:</span>
+                <button class="preset-chip-pill" onclick="setPreset('google.com', 'A', 'iterative')">google.com</button>
+                <button class="preset-chip-pill" onclick="setPreset('github.com', 'A', 'iterative')">github.com</button>
+                <button class="preset-chip-pill" onclick="setPreset('cloudflare.com', 'NS', 'iterative')">cloudflare.com (NS)</button>
+                <button class="preset-chip-pill" onclick="setPreset('gmail.com', 'MX', 'recursive')">gmail.com (MX)</button>
+            </div>
+        </section>
+
+        <!-- Loading Spinner -->
+        <div id="loading" class="loading-box">
+            <div class="spinner-pill"></div>
+            <p style="font-size: 13px; font-weight: 600; color: var(--text-muted);">Crafting UDP datagram and traversing root servers...</p>
         </div>
 
         <!-- Dynamic Output Container -->
-        <div id="results" style="display: none;"></div>
+        <div id="results"></div>
 
-        <!-- Initial Placeholder -->
-        <div id="empty-state" class="card empty-placeholder">
-            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 6px;">Ready for DNS Resolution</p>
-            <p style="font-size: 12px; color: var(--text-dim); font-family: var(--font-mono);">Enter a domain or click any quick test preset above.</p>
-        </div>
+    </div>
 
-        <!-- Footer -->
-        <footer class="footer">
-            <div>Computer Networks Project &bull; <strong>Harshit Sharma</strong></div>
-            <div>No external DNS libraries &bull; Pure RFC 1035 UDP Binary Packets</div>
-        </footer>
-
-    </main>
+    <!-- Floating Bottom Dock (Reference-style Pill Nav) -->
+    <nav class="floating-dock">
+        <button class="dock-btn active" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+            <span>🏠</span>
+            <span>Dashboard</span>
+        </button>
+        <button class="dock-btn" onclick="executeCompare()">
+            <span>⚡</span>
+            <span>Benchmark</span>
+        </button>
+        <button class="dock-btn" onclick="fetchCacheStats()">
+            <span>💾</span>
+            <span>Cache Table</span>
+        </button>
+        <button class="dock-btn" onclick="clearCacheAction()">
+            <span>🗑️</span>
+            <span>Flush</span>
+        </button>
+    </nav>
 
     <script>
-        // Trigger on Enter
         document.getElementById('domain').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') executeResolve();
         });
@@ -783,7 +794,6 @@
         function showLoading() {
             document.getElementById('loading').style.display = 'block';
             document.getElementById('results').style.display = 'none';
-            document.getElementById('empty-state').style.display = 'none';
         }
 
         function hideLoading() {
@@ -796,7 +806,7 @@
             const mode = document.getElementById('mode').value;
 
             if (!domain) {
-                alert('Please provide a domain name (e.g., google.com)');
+                alert('Please enter a domain name');
                 return;
             }
 
@@ -814,18 +824,13 @@
                 renderResults(data);
             } catch (err) {
                 hideLoading();
-                renderError('Network error connecting to resolver daemon: ' + err.message);
+                alert('Resolution error: ' + err.message);
             }
         }
 
         async function executeCompare() {
-            const domain = document.getElementById('domain').value.trim();
+            const domain = document.getElementById('domain').value.trim() || 'google.com';
             const qtype = document.getElementById('qtype').value;
-
-            if (!domain) {
-                alert('Please provide a domain name to benchmark');
-                return;
-            }
 
             showLoading();
 
@@ -841,7 +846,7 @@
                 renderBenchmark(data, domain);
             } catch (err) {
                 hideLoading();
-                renderError('Failed to execute benchmark: ' + err.message);
+                alert('Benchmark error: ' + err.message);
             }
         }
 
@@ -854,7 +859,14 @@
                 renderCache(data);
             } catch (err) {
                 hideLoading();
-                renderError('Failed to fetch cache statistics: ' + err.message);
+                alert('Cache fetch error: ' + err.message);
+            }
+        }
+
+        async function clearCacheAction() {
+            if (confirm('Clear all cached DNS records?')) {
+                await fetch('/api/cache/clear', { method: 'POST' });
+                fetchCacheStats();
             }
         }
 
@@ -862,171 +874,77 @@
             const out = document.getElementById('results');
             out.style.display = 'block';
 
-            let statusBadge = data.success 
-                ? `<span class="badge badge-success">NOERROR (0)</span>` 
-                : `<span class="badge badge-error">${data.rcode || 'FAILED'}</span>`;
+            // Update Top Mini Cards
+            document.getElementById('hero-status').innerText = data.rcode || (data.success ? 'NOERROR' : 'ERROR');
+            document.getElementById('hero-latency').innerText = data.time_ms;
+            document.getElementById('hero-cache-status').innerText = data.from_cache ? 'CACHE HIT' : 'NETWORK MISS';
+            document.getElementById('hero-hops').innerText = data.trace ? data.trace.length : 1;
 
-            let cacheBadge = data.from_cache 
-                ? `<span class="badge badge-cyan">CACHE HIT</span>` 
-                : `<span class="badge badge-neutral">NETWORK MISS</span>`;
+            let html = '';
 
-            let html = `
-                <!-- Stats Row -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-card-label">Response Status</div>
-                        <div class="stat-card-value">${statusBadge}</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-label">Total Latency</div>
-                        <div class="stat-card-value">${data.time_ms}<span style="font-size: 13px; color: var(--text-dim);">ms</span></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-label">Resolution Mode</div>
-                        <div class="stat-card-value" style="font-size: 15px; text-transform: uppercase;">${data.mode}</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-label">Cache State</div>
-                        <div class="stat-card-value">${cacheBadge}</div>
-                    </div>
-                </div>
-            `;
-
-            if (data.error) {
-                html += `
-                    <div class="card" style="border-color: rgba(244, 63, 94, 0.3); background: rgba(244, 63, 94, 0.05); padding: 16px 20px;">
-                        <div style="color: var(--rose); font-size: 13px; font-weight: 500;">
-                            ⚠️ Resolution Alert: ${data.error}
-                        </div>
-                    </div>
-                `;
-            }
-
-            // Answer Section
+            // Answer Card
             if (data.answers && data.answers.length > 0) {
                 html += `
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">
-                                <span>📋 Answer Section</span>
-                                <span class="badge badge-neutral">${data.answers.length} Records</span>
-                            </div>
-                            <span style="font-size: 11px; color: var(--text-dim); font-family: var(--font-mono);">RFC 1035 Resource Records</span>
+                    <div class="card-main">
+                        <div class="card-top-title">
+                            <h2 class="card-heading">Answers &bull; ${data.domain}</h2>
+                            <span class="tag-pill tag-success">${data.answers.length} Records Found</span>
                         </div>
-                        <div class="card-body">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Type</th>
-                                        <th>TTL</th>
-                                        <th>Resource Data (RDATA)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                        <table class="records-clean-table">
+                            <thead>
+                                <tr>
+                                    <th>Host Name</th>
+                                    <th>Type</th>
+                                    <th>TTL Expiry</th>
+                                    <th>Resource Data (IP)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
                 `;
 
                 data.answers.forEach(rec => {
                     html += `
-                        <tr>
-                            <td class="mono" style="color: var(--text-muted);">${rec.name}</td>
-                            <td><span class="type-tag type-${rec.type}">${rec.type}</span></td>
-                            <td class="mono" style="color: var(--text-dim);">${rec.ttl}s</td>
-                            <td><span class="data-value">${rec.data}</span></td>
+                        <tr class="record-row-pill">
+                            <td class="mono" style="font-weight: 600;">${rec.name}</td>
+                            <td><span class="tag-pill tag-purple">${rec.type}</span></td>
+                            <td class="mono" style="color: var(--text-muted);">${rec.ttl}s</td>
+                            <td><span class="rdata-highlight">${rec.data}</span></td>
                         </tr>
                     `;
                 });
 
-                html += `</tbody></table></div></div>`;
+                html += `</tbody></table></div>`;
             }
 
-            // Step-by-Step Resolution Trace
+            // Resolution Hop Timeline (Activity Card)
             if (data.trace && data.trace.length > 0 && !data.from_cache) {
                 html += `
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">
-                                <span>🌐 Resolution Hop Trace</span>
-                                <span class="badge badge-neutral">${data.trace.length} Hops</span>
-                            </div>
-                            <span style="font-size: 11px; color: var(--text-dim); font-family: var(--font-mono);">Root ➔ TLD ➔ Authoritative</span>
+                    <div class="activity-card">
+                        <div class="card-top-title">
+                            <h2 class="card-heading" style="color: #0c4a6e;">Resolution Hops (${data.mode})</h2>
+                            <span class="tag-pill tag-sky">${data.trace.length} Steps</span>
                         </div>
-                        <div class="card-body timeline">
                 `;
 
                 data.trace.forEach((step, idx) => {
-                    let serverLabel = step.from_cache ? 'Local Memory Cache' : step.server_name;
-                    let ipLabel = step.server_ip ? `(${step.server_ip})` : '';
-
-                    let referralBadges = '';
-                    if (step.referrals && step.referrals.length > 0) {
-                        referralBadges = step.referrals.map(r => `<span class="badge badge-warn">↪ Referral: ${r}</span>`).join(' ');
-                    }
-
-                    let answerBadges = '';
-                    if (step.answers && step.answers.length > 0) {
-                        answerBadges = step.answers.map(a => `<span class="badge badge-success">✓ ${a.type}: ${a.data}</span>`).join(' ');
-                    }
+                    let serverName = step.from_cache ? 'Local Cache' : step.server_name;
+                    let serverIp = step.server_ip ? `(${step.server_ip})` : '';
 
                     html += `
-                        <div class="timeline-step">
-                            <div class="step-num">Hop 0${idx + 1}</div>
-                            <div class="step-main">
-                                <div class="step-title">
-                                    <span>${serverLabel}</span>
-                                    <span class="step-ip">${ipLabel}</span>
-                                </div>
-                                <div class="step-desc">
-                                    Querying <strong style="color: var(--text-muted); font-family: var(--font-mono);">${step.domain}</strong> (${step.type})
-                                </div>
-                                <div class="step-badge-box">
-                                    ${referralBadges}
-                                    ${answerBadges}
+                        <div class="step-pill-item">
+                            <div class="step-left-info">
+                                <div class="step-index-badge">${idx + 1}</div>
+                                <div>
+                                    <div class="step-names">${serverName}</div>
+                                    <div class="step-ip-meta">Query: ${step.domain} [${step.type}] &bull; ${serverIp}</div>
                                 </div>
                             </div>
-                            <div class="step-latency">${step.time_ms} ms</div>
+                            <span class="step-time-pill">${step.time_ms} ms</span>
                         </div>
                     `;
                 });
 
-                html += `</div></div>`;
-            }
-
-            // Authority Section
-            if (data.authority && data.authority.length > 0) {
-                html += `
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">
-                                <span>🏛️ Authority Section</span>
-                                <span class="badge badge-neutral">${data.authority.length} Nameservers</span>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Zone</th>
-                                        <th>Type</th>
-                                        <th>TTL</th>
-                                        <th>Authoritative Server</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                `;
-
-                data.authority.forEach(rec => {
-                    html += `
-                        <tr>
-                            <td class="mono" style="color: var(--text-muted);">${rec.name}</td>
-                            <td><span class="type-tag type-${rec.type}">${rec.type}</span></td>
-                            <td class="mono" style="color: var(--text-dim);">${rec.ttl}s</td>
-                            <td class="mono" style="color: var(--text-main);">${rec.data}</td>
-                        </tr>
-                    `;
-                });
-
-                html += `</tbody></table></div></div>`;
+                html += `</div>`;
             }
 
             out.innerHTML = html;
@@ -1036,11 +954,6 @@
             const out = document.getElementById('results');
             out.style.display = 'block';
 
-            if (!data.success) {
-                renderError(data.error);
-                return;
-            }
-
             const comp = data.comparison;
             const maxVal = Math.max(
                 comp.iterative?.time_ms || 1,
@@ -1049,43 +962,34 @@
             );
 
             let html = `
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <span>⚡ Latency Benchmark</span>
-                            <span class="badge badge-neutral">${domain}</span>
-                        </div>
-                        <span style="font-size: 11px; color: var(--text-dim); font-family: var(--font-mono);">Side-by-side execution</span>
+                <div class="card-main">
+                    <div class="card-top-title">
+                        <h2 class="card-heading">Benchmark Comparison &bull; ${domain}</h2>
+                        <span class="tag-pill tag-coral">Latency Performance</span>
                     </div>
-                    <div class="card-body benchmark-box">
+                    <div class="bench-bar-container">
             `;
 
             const methods = [
-                { key: 'iterative', label: 'Iterative Resolver', class: 'bench-iterative' },
-                { key: 'recursive', label: 'Recursive (8.8.8.8)', class: 'bench-recursive' },
-                { key: 'system', label: 'Host System DNS', class: 'bench-system' }
+                { key: 'iterative', name: 'Iterative (Root➔Auth)', fill: 'fill-coral' },
+                { key: 'recursive', name: 'Recursive (8.8.8.8)', fill: 'fill-dark' },
+                { key: 'system', name: 'Host System DNS', fill: 'fill-mint' }
             ];
 
             methods.forEach(m => {
                 const item = comp[m.key];
                 if (!item) return;
 
-                const widthPct = Math.max((item.time_ms / maxVal) * 100, 8);
-                const cachedTag = item.from_cache ? '<span class="badge badge-cyan" style="margin-left: 8px;">Cached</span>' : '';
-                const answersList = item.answers ? item.answers.slice(0, 3).join(', ') : '';
-
+                const pct = Math.max((item.time_ms / maxVal) * 100, 10);
                 html += `
-                    <div class="bench-row">
-                        <div class="bench-label">${m.label}</div>
-                        <div class="bench-track">
-                            <div class="bench-fill ${m.class}" style="width: ${widthPct}%;">
+                    <div class="bench-item-pill">
+                        <span style="font-size: 13px; font-weight: 700;">${m.name}</span>
+                        <div class="bench-track-pill">
+                            <div class="bench-fill-pill ${m.fill}" style="width: ${pct}%;">
                                 ${item.time_ms} ms
                             </div>
                         </div>
-                        <div class="bench-time">${item.time_ms} ms</div>
-                    </div>
-                    <div style="font-size: 11px; font-family: var(--font-mono); color: var(--text-dim); margin-left: 154px; margin-top: -8px; margin-bottom: 8px;">
-                        Answers: ${answersList || 'None'} ${cachedTag}
+                        <span class="mono" style="font-weight: 700; text-align: right;">${item.time_ms} ms</span>
                     </div>
                 `;
             });
@@ -1100,45 +1004,22 @@
 
             const s = data.stats;
             let html = `
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-card-label">Stored Entries</div>
-                        <div class="stat-card-value">${s.total_entries} <span style="font-size: 13px; color: var(--text-dim);">/ ${s.max_size}</span></div>
+                <div class="card-main">
+                    <div class="card-top-title">
+                        <h2 class="card-heading">Active Memory Cache</h2>
+                        <span class="tag-pill tag-success">Hit Rate: ${s.hit_rate}</span>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-card-label">Hit Ratio</div>
-                        <div class="stat-card-value" style="color: var(--emerald);">${s.hit_rate}</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-label">Cache Hits</div>
-                        <div class="stat-card-value">${s.hits}</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-label">Cache Misses</div>
-                        <div class="stat-card-value">${s.misses}</div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <span>💾 Active In-Memory Records</span>
-                            <span class="badge badge-neutral">${data.entries.length} Cached</span>
-                        </div>
-                        <button class="btn-secondary" style="height: 28px;" onclick="purgeCache()">Purge Cache</button>
-                    </div>
-                    <div class="card-body">
             `;
 
             if (data.entries.length > 0) {
                 html += `
-                    <table class="data-table">
+                    <table class="records-clean-table">
                         <thead>
                             <tr>
                                 <th>Domain</th>
                                 <th>Type</th>
-                                <th>Remaining TTL</th>
-                                <th>Hit Count</th>
+                                <th>TTL Remaining</th>
+                                <th>Hits</th>
                                 <th>Cached Data</th>
                             </tr>
                         </thead>
@@ -1147,41 +1028,23 @@
 
                 data.entries.forEach(e => {
                     html += `
-                        <tr>
-                            <td class="mono" style="color: var(--text-main); font-weight: 500;">${e.domain}</td>
-                            <td><span class="type-tag type-${e.type}">${e.type}</span></td>
-                            <td class="mono" style="color: var(--emerald);">${e.ttl_remaining}s</td>
+                        <tr class="record-row-pill">
+                            <td class="mono" style="font-weight: 700;">${e.domain}</td>
+                            <td><span class="tag-pill tag-purple">${e.type}</span></td>
+                            <td class="mono" style="color: var(--mint-primary); font-weight: 700;">${e.ttl_remaining}s</td>
                             <td class="mono">${e.hits}</td>
-                            <td class="mono" style="color: var(--text-muted);">${e.records.join(', ')}</td>
+                            <td class="mono" style="font-weight: 600;">${e.records.join(', ')}</td>
                         </tr>
                     `;
                 });
 
                 html += `</tbody></table>`;
             } else {
-                html += `<div style="padding: 36px; text-align: center; color: var(--text-dim); font-size: 13px; font-family: var(--font-mono);">Cache table is currently empty</div>`;
+                html += `<div style="text-align:center; padding: 30px; color: var(--text-muted); font-size: 13px;">Cache memory is empty. Run queries to populate.</div>`;
             }
 
-            html += `</div></div>`;
+            html += `</div>`;
             out.innerHTML = html;
-        }
-
-        async function purgeCache() {
-            if (confirm('Flush all in-memory DNS cache entries?')) {
-                await fetch('/api/cache/clear', { method: 'POST' });
-                fetchCacheStats();
-            }
-        }
-
-        function renderError(msg) {
-            const out = document.getElementById('results');
-            out.style.display = 'block';
-            out.innerHTML = `
-                <div class="card" style="border-color: rgba(244, 63, 94, 0.3); background: rgba(244, 63, 94, 0.05); padding: 24px; text-align: center;">
-                    <div style="font-size: 16px; margin-bottom: 6px;">⚠️</div>
-                    <div style="color: var(--rose); font-size: 13px; font-weight: 500;">${msg}</div>
-                </div>
-            `;
         }
     </script>
 </body>

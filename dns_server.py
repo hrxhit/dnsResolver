@@ -16,7 +16,7 @@ How it works:
 You can test it with:
     dig @127.0.0.1 -p 5353 google.com
 
-Author: Harshit
+Author: Sarah
 Subject: Computer Networks (2nd Year)
 """
 

@@ -17,7 +17,7 @@ DNS Message Format:
     |      Additional     |  Variable length (Resource Records)
     +---------------------+
 
-Author: Harshit
+Author: Sarah
 Subject: Computer Networks (2nd Year)
 """
 

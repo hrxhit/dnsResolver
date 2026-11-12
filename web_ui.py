@@ -14,7 +14,7 @@ Run:
     python web_ui.py
     Open: http://localhost:5000
 
-Author: Harshit
+Author: Sarah
 Subject: Computer Networks (2nd Year)
 """
 
