@@ -237,4 +237,4 @@ dnsResolver/
 
 * **Harshit Sharma**  
 * GitHub: [@hrxhit](https://github.com/hrxhit)  
-* Computer Networks — 2nd Year B.Tech / CSE
+* Computer Networks — 3rd Year B.Tech / CSE
